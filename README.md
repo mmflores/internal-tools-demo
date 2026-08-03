@@ -21,6 +21,34 @@ production system.
   skip the log — including feature-flag toggles. The log is append-only: there is no update or
   delete endpoint.
 
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph browser["Browser — React + Vite + TS"]
+        login["Login (role picker)"] --> auth["AuthProvider<br/>role in localStorage"]
+        auth --> guard["RequirePermission<br/>route + nav filtering"]
+        guard --> pages["Pages: Dashboard, KYC Reviews,<br/>Refunds, Feature Flags,<br/>Access Requests, Audit Log"]
+        pages --> shared["Shared components:<br/>DataTable, ResourceForm,<br/>ReviewActions, StatusFilter<br/>+ useResource hook"]
+        shared --> apiclient["api.ts — fetch with X-Role header"]
+    end
+
+    apiclient -->|"/api/* (Vite proxy :5173 → :8000)"| routes
+
+    subgraph backend["FastAPI"]
+        routes["main.py routes"] --> guards["auth.py<br/>current_role + require_roles"]
+        guards --> logic["reviews.py apply_decision<br/>(KYC + refunds)<br/>flag toggle (dev-only for engineer)"]
+        logic --> auditor["audit.py Auditor dependency<br/>before/after snapshots"]
+    end
+
+    logic --> db[("SQLite<br/>internal_tools.db")]
+    auditor -->|append-only| db
+    seed["seed.py<br/>deterministic demo data"] --> db
+```
+
+Every mutating route depends on `Auditor`, so authorization and audit capture sit on the same path
+as the write — a new workflow gets both by construction.
+
 ## Running it
 
 Two terminals, no Docker required.
