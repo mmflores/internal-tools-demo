@@ -104,13 +104,6 @@ cd backend && .venv/bin/python -m pytest    # API + audit + authorization smoke 
 cd frontend && npm run build && npm run lint
 ```
 
-## Versus Power Apps
-
-Where this approach wins: version control and code review, real testing, unrestricted component
-reuse across apps, no per-user licensing, and audit logging shaped to the business rather than to
-the platform's defaults. What Power Apps still gives you and this does not: a WYSIWYG builder for
-non-engineers, hosting and identity out of the box, and connectors to Microsoft 365 data.
-
 ## Known gaps (deliberate)
 
 Real authentication/authorization, tamper-evident audit storage (hash chaining or WORM), log
