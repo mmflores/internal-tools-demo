@@ -4,6 +4,7 @@ import { useAuth } from "@/auth/AuthProvider"
 import { PageHeader } from "@/components/PageHeader"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { api } from "@/lib/api"
+import { formatMoney } from "@/lib/format"
 
 interface Summary {
   label: string
@@ -18,17 +19,29 @@ export function Dashboard() {
   useEffect(() => {
     async function load() {
       const next: Summary[] = []
-      if (can("transactions:read")) {
-        const transactions = await api.transactions()
+      if (can("kyc:read")) {
+        const reviews = await api.kycReviews()
         next.push({
-          label: "Transactions pending review",
-          value: String(transactions.filter((t) => t.status === "pending").length),
-          hint: `${transactions.length} total in the ledger`,
+          label: "KYC reviews pending",
+          value: String(reviews.filter((r) => r.status === "pending").length),
+          hint: `${reviews.filter((r) => r.risk_score >= 70).length} of them high risk`,
         })
+      }
+      if (can("refunds:read")) {
+        const refunds = await api.refunds()
+        const pending = refunds.filter((r) => r.status === "pending")
         next.push({
-          label: "High risk (score ≥ 70)",
-          value: String(transactions.filter((t) => t.risk_score >= 70).length),
-          hint: "Prioritised for compliance review",
+          label: "Refunds awaiting decision",
+          value: String(pending.length),
+          hint: formatMoney(pending.reduce((sum, r) => sum + r.amount_cents, 0)) + " at stake",
+        })
+      }
+      if (can("flags:read")) {
+        const flags = await api.featureFlags()
+        next.push({
+          label: "Feature flags enabled",
+          value: `${flags.filter((f) => f.enabled).length}/${flags.length}`,
+          hint: "Across dev, staging and production",
         })
       }
       if (can("requests:read")) {
@@ -41,6 +54,7 @@ export function Dashboard() {
       }
       if (can("audit:read")) {
         const entries = await api.auditLog()
+
         next.push({
           label: "Audit entries",
           value: String(entries.length),

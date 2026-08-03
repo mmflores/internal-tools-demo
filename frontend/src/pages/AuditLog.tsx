@@ -4,17 +4,18 @@ import { toast } from "sonner"
 
 import { DataTable } from "@/components/DataTable"
 import { PageHeader } from "@/components/PageHeader"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { StatusFilter } from "@/components/StatusFilter"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { api } from "@/lib/api"
 import { formatDate } from "@/lib/format"
 import type { AuditEntry } from "@/lib/types"
+
+const ENTITY_OPTIONS = [
+  { label: "KYC reviews", value: "kyc_review" },
+  { label: "Refunds", value: "refund" },
+  { label: "Feature flags", value: "feature_flag" },
+  { label: "Access requests", value: "access_request" },
+]
 
 const columns: ColumnDef<AuditEntry, unknown>[] = [
   {
@@ -41,7 +42,7 @@ export function AuditLog() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      setRows(await api.auditLog({ entity: entity === "all" ? undefined : entity }))
+      setRows(await api.auditLog(entity))
     } catch (error) {
       toast.error((error as Error).message)
     } finally {
@@ -68,16 +69,13 @@ export function AuditLog() {
         emptyMessage="No activity recorded yet."
         onRowClick={(row) => setSelected(row)}
         toolbar={
-          <Select value={entity} onValueChange={setEntity}>
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All entities</SelectItem>
-              <SelectItem value="transaction">Transactions</SelectItem>
-              <SelectItem value="access_request">Access requests</SelectItem>
-            </SelectContent>
-          </Select>
+          <StatusFilter
+            value={entity}
+            onChange={setEntity}
+            options={ENTITY_OPTIONS}
+            allLabel="All entities"
+            className="w-48"
+          />
         }
       />
 

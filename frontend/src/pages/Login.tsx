@@ -12,9 +12,9 @@ import {
 import type { Role } from "@/lib/types"
 
 const ROLES: { role: Role; title: string; blurb: string }[] = [
-  { role: "admin", title: "Admin", blurb: "Full access, decides access requests." },
-  { role: "compliance", title: "Compliance", blurb: "Reviews and flags transactions." },
-  { role: "engineer", title: "Engineer", blurb: "Requests access to internal systems." },
+  { role: "admin", title: "Admin", blurb: "Decides refunds and toggles flags anywhere." },
+  { role: "compliance", title: "Compliance", blurb: "Reviews KYC submissions, reads refunds." },
+  { role: "engineer", title: "Engineer", blurb: "Toggles dev flags, requests system access." },
 ]
 
 export function Login() {
