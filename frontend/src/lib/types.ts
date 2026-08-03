@@ -1,7 +1,8 @@
 export type Role = "admin" | "compliance" | "engineer"
 
-export type TransactionStatus = "pending" | "flagged" | "approved" | "rejected"
+export type ReviewStatus = "pending" | "approved" | "rejected"
 export type RequestStatus = "pending" | "approved" | "denied"
+export type Environment = "dev" | "staging" | "production"
 
 export interface Me {
   role: Role
@@ -9,16 +10,33 @@ export interface Me {
   permissions: string[]
 }
 
-export interface Transaction {
+export interface KycReview {
   id: number
-  reference: string
-  counterparty: string
+  customer_name: string
+  submitted_at: string
+  risk_score: number
+  status: ReviewStatus
+  notes: string | null
+  decided_by: string | null
+}
+
+export interface RefundRequest {
+  id: number
+  customer: string
   amount_cents: number
   currency: string
-  status: TransactionStatus
-  risk_score: number
+  reason: string
+  status: ReviewStatus
   created_at: string
-  note: string | null
+  decided_by: string | null
+}
+
+export interface FeatureFlag {
+  id: number
+  name: string
+  environment: Environment
+  enabled: boolean
+  owner: string
 }
 
 export interface AccessRequest {

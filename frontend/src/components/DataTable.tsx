@@ -55,6 +55,7 @@ export function DataTable<T>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     initialState: { pagination: { pageSize: 10 } },
+    autoResetPageIndex: false,
   })
 
   return (

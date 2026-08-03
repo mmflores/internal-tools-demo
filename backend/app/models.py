@@ -15,11 +15,18 @@ class Role(str, Enum):
     engineer = "engineer"
 
 
-class TransactionStatus(str, Enum):
+class ReviewStatus(str, Enum):
+    """Shared by every approval queue in the platform."""
+
     pending = "pending"
-    flagged = "flagged"
     approved = "approved"
     rejected = "rejected"
+
+
+class Environment(str, Enum):
+    dev = "dev"
+    staging = "staging"
+    production = "production"
 
 
 class RequestStatus(str, Enum):
@@ -35,16 +42,33 @@ class User(SQLModel, table=True):
     role: Role
 
 
-class Transaction(SQLModel, table=True):
+class KycReview(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    reference: str = Field(index=True)
-    counterparty: str
+    customer_name: str = Field(index=True)
+    submitted_at: datetime = Field(default_factory=utcnow)
+    risk_score: int
+    status: ReviewStatus = ReviewStatus.pending
+    notes: Optional[str] = None
+    decided_by: Optional[str] = None
+
+
+class RefundRequest(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    customer: str = Field(index=True)
     amount_cents: int
     currency: str = "USD"
-    status: TransactionStatus = TransactionStatus.pending
-    risk_score: int
+    reason: str
+    status: ReviewStatus = ReviewStatus.pending
     created_at: datetime = Field(default_factory=utcnow)
-    note: Optional[str] = None
+    decided_by: Optional[str] = None
+
+
+class FeatureFlag(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    environment: Environment
+    enabled: bool = False
+    owner: str
 
 
 class AccessRequest(SQLModel, table=True):

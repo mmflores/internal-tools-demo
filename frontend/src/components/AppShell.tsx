@@ -1,5 +1,12 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
-import { ClipboardList, LayoutDashboard, ScrollText, ShieldCheck } from "lucide-react"
+import {
+  ClipboardList,
+  LayoutDashboard,
+  ReceiptText,
+  ScrollText,
+  ShieldCheck,
+  ToggleRight,
+} from "lucide-react"
 
 import { useAuth } from "@/auth/AuthProvider"
 import { Button } from "@/components/ui/button"
@@ -7,7 +14,9 @@ import { cn } from "@/lib/utils"
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, permission: null },
-  { to: "/transactions", label: "Transaction Review", icon: ShieldCheck, permission: "transactions:read" },
+  { to: "/kyc-reviews", label: "KYC Reviews", icon: ShieldCheck, permission: "kyc:read" },
+  { to: "/refunds", label: "Refund Dashboard", icon: ReceiptText, permission: "refunds:read" },
+  { to: "/feature-flags", label: "Feature Flags", icon: ToggleRight, permission: "flags:read" },
   { to: "/access-requests", label: "Access Requests", icon: ClipboardList, permission: "requests:read" },
   { to: "/audit-log", label: "Audit Log", icon: ScrollText, permission: "audit:read" },
 ] as const

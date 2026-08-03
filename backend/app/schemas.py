@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from .models import RequestStatus, Role, TransactionStatus
+from .models import RequestStatus, ReviewStatus, Role
 
 
 class Me(BaseModel):
@@ -11,9 +11,15 @@ class Me(BaseModel):
     permissions: list[str]
 
 
-class TransactionUpdate(BaseModel):
-    status: TransactionStatus
-    note: Optional[str] = None
+class ReviewDecision(BaseModel):
+    """Approve/reject payload shared by the KYC and refund queues."""
+
+    status: ReviewStatus
+    notes: Optional[str] = None
+
+
+class FlagToggle(BaseModel):
+    enabled: bool
 
 
 class AccessRequestCreate(BaseModel):

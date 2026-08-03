@@ -1,11 +1,13 @@
 import type {
   AccessRequest,
   AuditEntry,
+  FeatureFlag,
+  KycReview,
   Me,
+  RefundRequest,
   RequestStatus,
+  ReviewStatus,
   Role,
-  Transaction,
-  TransactionStatus,
 } from "./types"
 
 const ROLE_STORAGE_KEY = "internal-tools.role"
@@ -36,20 +38,39 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return response.json() as Promise<T>
 }
 
+function withStatus(path: string, status?: string) {
+  return status && status !== "all" ? `${path}?status=${status}` : path
+}
+
 export const api = {
   me: () => request<Me>("/me"),
-  transactions: (params: { status?: string; minRisk?: number } = {}) => {
-    const query = new URLSearchParams()
-    if (params.status) query.set("status", params.status)
-    if (params.minRisk) query.set("min_risk", String(params.minRisk))
-    const suffix = query.toString() ? `?${query}` : ""
-    return request<Transaction[]>(`/transactions${suffix}`)
-  },
-  updateTransaction: (id: number, status: TransactionStatus, note?: string) =>
-    request<Transaction>(`/transactions/${id}`, {
+
+  kycReviews: (status?: string) => request<KycReview[]>(withStatus("/kyc-reviews", status)),
+  decideKycReview: (id: number, status: ReviewStatus, notes?: string) =>
+    request<KycReview>(`/kyc-reviews/${id}`, {
       method: "PATCH",
-      body: JSON.stringify({ status, note }),
+      body: JSON.stringify({ status, notes }),
     }),
+
+  refunds: (status?: string) => request<RefundRequest[]>(withStatus("/refunds", status)),
+  decideRefund: (id: number, status: ReviewStatus) =>
+    request<RefundRequest>(`/refunds/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }),
+
+  featureFlags: (environment?: string) =>
+    request<FeatureFlag[]>(
+      environment && environment !== "all"
+        ? `/feature-flags?environment=${environment}`
+        : "/feature-flags",
+    ),
+  toggleFeatureFlag: (id: number, enabled: boolean) =>
+    request<FeatureFlag>(`/feature-flags/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ enabled }),
+    }),
+
   accessRequests: () => request<AccessRequest[]>("/access-requests"),
   createAccessRequest: (body: { system: string; justification: string }) =>
     request<AccessRequest>("/access-requests", {
@@ -61,8 +82,7 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify({ status }),
     }),
-  auditLog: (params: { entity?: string } = {}) => {
-    const query = params.entity ? `?entity=${params.entity}` : ""
-    return request<AuditEntry[]>(`/audit-log${query}`)
-  },
+
+  auditLog: (entity?: string) =>
+    request<AuditEntry[]>(entity && entity !== "all" ? `/audit-log?entity=${entity}` : "/audit-log"),
 }

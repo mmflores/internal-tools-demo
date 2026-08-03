@@ -7,8 +7,10 @@ import { Toaster } from "@/components/ui/sonner"
 import { AccessRequests } from "@/pages/AccessRequests"
 import { AuditLog } from "@/pages/AuditLog"
 import { Dashboard } from "@/pages/Dashboard"
+import { FeatureFlags } from "@/pages/FeatureFlags"
+import { KycReviews } from "@/pages/KycReviews"
 import { Login } from "@/pages/Login"
-import { Transactions } from "@/pages/Transactions"
+import { Refunds } from "@/pages/Refunds"
 
 export default function App() {
   return (
@@ -25,10 +27,26 @@ export default function App() {
           >
             <Route path="/" element={<Dashboard />} />
             <Route
-              path="/transactions"
+              path="/kyc-reviews"
               element={
-                <RequirePermission permission="transactions:read">
-                  <Transactions />
+                <RequirePermission permission="kyc:read">
+                  <KycReviews />
+                </RequirePermission>
+              }
+            />
+            <Route
+              path="/refunds"
+              element={
+                <RequirePermission permission="refunds:read">
+                  <Refunds />
+                </RequirePermission>
+              }
+            />
+            <Route
+              path="/feature-flags"
+              element={
+                <RequirePermission permission="flags:read">
+                  <FeatureFlags />
                 </RequirePermission>
               }
             />
