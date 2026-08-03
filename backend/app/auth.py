@@ -21,8 +21,8 @@ def current_role(x_role: str = Header(default="")) -> Role:
 
 
 def require_roles(*allowed: Role):
-    def dependency(role: Role = Header(default=None, alias="X-Role")) -> Role:
-        resolved = current_role(role or "")
+    def dependency(x_role: str = Header(default="")) -> Role:
+        resolved = current_role(x_role)
         if resolved not in allowed:
             raise HTTPException(
                 status_code=403,
