@@ -137,7 +137,7 @@ def decide_refund(
 def list_feature_flags(
     environment: Optional[Environment] = None,
     session: Session = Depends(get_session),
-    _: Role = Depends(require_roles(Role.admin, Role.compliance, Role.engineer)),
+    _: Role = Depends(require_roles(Role.admin, Role.engineer)),
 ) -> list[FeatureFlag]:
     query = select(FeatureFlag)
     if environment:

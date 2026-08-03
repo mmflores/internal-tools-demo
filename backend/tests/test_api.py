@@ -25,6 +25,10 @@ def test_engineer_cannot_read_kyc_or_refunds(client):
     assert client.get("/api/refunds", headers=headers).status_code == 403
 
 
+def test_compliance_cannot_read_feature_flags(client):
+    assert client.get("/api/feature-flags", headers={"X-Role": "compliance"}).status_code == 403
+
+
 def test_compliance_decides_kyc_and_audit_entry_is_written(client):
     headers = {"X-Role": "compliance"}
     review = client.get("/api/kyc-reviews?status=pending", headers=headers).json()[0]
